@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0c29"/>
+      <stop offset="50%" stop-color="#302b63"/>
+      <stop offset="100%" stop-color="#24243e"/>
+    </linearGradient>
+    <linearGradient id="heart192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9a9e"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#be185d"/>
+    </linearGradient>
+    <filter id="glow192" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="url(#bg192)"/>
+  <!-- Outer glow ring -->
+  <circle cx="96" cy="96" r="68" fill="none" stroke="url(#heart192)" stroke-width="3" opacity="0.35"/>
+  <circle cx="96" cy="96" r="52" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.25"/>
+  <!-- Main heart -->
+  <path d="M96 124 c-26 0 -42 -18 -42 -40 0 -22 28 -46 42 -14 14 -32 42 -14 42 42 0 -22 -28 -8 -42 -40 -42 -40" fill="url(#heart192)" filter="url(#glow192)"/>
+  <!-- Inner highlight heart -->
+  <path d="M96 108 c-14 0 -22 -10 -22 -22 0 -12 14 -26 22 -8 8 -16 -18 22 -8 22 0 -8 -14 -10 -22 -22" fill="#ffffff" opacity="0.35"/>
+  <!-- Small orbit hearts -->
+  <circle cx="62" cy="78" r="8" fill="#ffb7ce" opacity="0.9"/>
+  <circle cx="130" cy="118" r="6" fill="#a855f7" opacity="0.9"/>
+  <circle cx="128" cy="70" r="5" fill="#ffffff" opacity="0.8"/>
+  <!-- Sparkles -->
+  <circle cx="150" cy="45" r="2.5" fill="#ffffff"/>
+  <circle cx="42" cy="150" r="2" fill="#ffffff"/>
+  <circle cx="70" cy="30" r="1.5" fill="#ffffff"/>
+</svg>

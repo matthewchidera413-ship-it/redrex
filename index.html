@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ec4899">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Us 🌙">
+<meta name="description" content="A private dark-themed space for long-distance couples to stay connected.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<title>Us 🌙 — Our Long Distance Love</title>
+</head>
+<body>
+
+<!-- Floating hearts background -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- App shell -->
+<div class="app-shell">
+
+  <!-- Top header -->
+  <header class="app-header">
+    <div class="header-left">
+      <button class="icon-btn" onclick="showSection('home')" aria-label="Home">🌙</button>
+    </div>
+    <div class="header-center" id="headerTitle">Home</div>
+    <div class="header-right">
+      <button class="icon-btn" onclick="setNames()" aria-label="Names">✏️</button>
+    </div>
+  </header>
+
+  <!-- Page content -->
+  <main id="app" class="app-main">
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="relationship-badge">
+            <span class="badge-dot"></span>
+            <span id="daysTogether">0</span> nights together
+          </div>
+          <h1 id="homeTitle">Missing you, <span id="homePartnerName">love</span> 🌙</h1>
+          <p class="hero-sub">A little space just for us — no matter the miles between us.</p>
+          <div class="home-actions">
+            <button class="btn-think" onclick="sendThinkingOfYou()">💭 Thinking of You</button>
+            <button class="btn-primary" onclick="showSection('chat')">Send a message</button>
+            <button class="btn-outline" onclick="showSection('gallery')">See our photos</button>
+          </div>
+          <div class="home-streak">
+            🔥 Streak: <span id="homeStreak">0</span> nights in a row
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="couple-placeholder">🌙</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statPhotos">0</div>
+          <div class="stat-label">Photos shared</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMessages">0</div>
+          <div class="stat-label">Messages sent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statNotes">0</div>
+          <div class="stat-label">Love notes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCountdowns">0</div>
+          <div class="stat-label">Upcoming celebrations</div>
+        </div>
+      </div>
+
+      <div class="home-quick">
+        <div class="quick-card" onclick="showSection('countdown')">
+          <span class="quick-icon">📅</span>
+          <h3>Next Celebration</h3>
+          <p id="nextEvent">Add your first date</p>
+        </div>
+        <div class="quick-card" onclick="showSection('games')">
+          <span class="quick-icon">🎮</span>
+          <h3>Play Together</h3>
+          <p>Tic-tac-toe, trivia, dice & more</p>
+        </div>
+      </div>
+
+      <!-- Daily Love Quote -->
+      <div class="quote-card card">
+        <div class="quote-content">
+          <span class="quote-mark">“</span>
+          <span id="dailyQuote">Loading today's quote...</span>
+          <span class="quote-mark">”</span>
+        </div>
+        <div class="quote-author" id="dailyQuoteAuthor">— Us</div>
+        <button class="btn-outline" onclick="newDailyQuote()" style="margin-top:0.75rem;padding:0.5rem 1rem;font-size:0.8rem;">New Quote</button>
+      </div>
+    </section>
+
+    <!-- US STATS -->
+    <section id="stats" class="page">
+      <div class="page-header">
+        <h2>📊 Our Relationship Stats</h2>
+        <p>See how much each of you contributes to this little corner of the internet.</p>
+      </div>
+      <div class="stats-vs">
+        <div class="vs-side me-side">
+          <h3 id="statMeName">You</h3>
+          <div class="stat-row"><span class="stat-label">Photos shared</span><span class="stat-value" id="statMePhotos">0</span></div>
+          <div class="stat-row"><span class="stat-label">Messages sent</span><span class="stat-value" id="statMeMessages">0</span></div>
+          <div class="stat-row"><span class="stat-label">Love notes</span><span class="stat-value" id="statMeNotes">0</span></div>
+          <div class="stat-row"><span class="stat-label">Games won</span><span class="stat-value" id="statMeGames">0</span></div>
+          <div class="stat-row"><span class="stat-label">Thinking of you</span><span class="stat-value" id="statMeThink">0</span></div>
+        </div>
+        <div class="vs-middle">
+          <span class="vs-heart">🌙</span>
+          <div class="vs-divider"></div>
+        </div>
+        <div class="vs-side partner-side">
+          <h3 id="statPartnerName">Love</h3>
+          <div class="stat-row"><span class="stat-label">Photos shared</span><span class="stat-value" id="statPartnerPhotos">0</span></div>
+          <div class="stat-row"><span class="stat-label">Messages sent</span><span class="stat-value" id="statPartnerMessages">0</span></div>
+          <div class="stat-row"><span class="stat-label">Love notes</span><span class="stat-value" id="statPartnerNotes">0</span></div>
+          <div class="stat-row"><span class="stat-label">Games won</span><span class="stat-value" id="statPartnerGames">0</span></div>
+          <div class="stat-row"><span class="stat-label">Thinking of you</span><span class="stat-value" id="statPartnerThink">0</span></div>
+        </div>
+      </div>
+      <div class="card together-stat">
+        <h3>Together</h3>
+        <div class="stat-row"><span class="stat-label">Celebrations planned</span><span class="stat-value" id="statTogetherEvents">0</span></div>
+        <div class="stat-row"><span class="stat-label">Current streak</span><span class="stat-value" id="statStreak">0</span> nights</div>
+      </div>
+    </section>
+
+    <!-- LOVE METER -->
+    <section id="lovemeter" class="page">
+      <div class="page-header">
+        <h2>💗 Love Meter</h2>
+        <p>Every message, photo, note, and game earns points. Who loves more this month?</p>
+      </div>
+      <div class="streak-badge">
+        🔥 Current streak: <span id="lmStreak">0</span> nights
+      </div>
+      <div class="love-meter-card card">
+        <div class="meter-side me-side">
+          <span class="meter-name" id="lmMeName">You</span>
+          <div class="meter-bar-container"><div class="meter-bar me-bar" id="lmMeBar"></div></div>
+          <span class="meter-points" id="lmMePoints">0</span> points
+        </div>
+        <div class="meter-vs">VS</div>
+        <div class="meter-side partner-side">
+          <span class="meter-name" id="lmPartnerName">Love</span>
+          <div class="meter-bar-container"><div class="meter-bar partner-bar" id="lmPartnerBar"></div></div>
+          <span class="meter-points" id="lmPartnerPoints">0</span> points
+        </div>
+      </div>
+      <div id="lmWinner" class="winner-announce"></div>
+      <p class="month-note">Points reset automatically on the 1st of every month. End-of-month winner gets bragging rights! 🏆</p>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="page">
+      <div class="page-header">
+        <h2>📸 Our Gallery</h2>
+        <p>Pictures of things you love, moments you miss, and memories to keep.</p>
+      </div>
+      <div class="gallery-controls">
+        <input type="file" id="photoInput" accept="image/*" multiple hidden>
+        <button class="btn-primary" onclick="document.getElementById('photoInput').click()">📤 Upload Photos</button>
+        <button class="btn-outline" onclick="clearGallery()">🗑️ Clear All</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <div id="galleryEmpty" class="empty-state">
+        <span class="empty-icon">🖼️</span>
+        <p>No photos yet. Upload your first picture!</p>
+      </div>
+    </section>
+
+    <!-- COUNTDOWN -->
+    <section id="countdown" class="page">
+      <div class="page-header">
+        <h2>📅 Celebrations</h2>
+        <p>Birthdays, anniversaries, and every night worth counting.</p>
+      </div>
+      <div class="countdown-form card">
+        <div class="form-row">
+          <input type="text" id="eventName" placeholder="Event name (e.g. Birthday)">
+          <input type="date" id="eventDate">
+          <button class="btn-primary" onclick="addCountdown()">Add</button>
+        </div>
+      </div>
+      <div class="countdown-list" id="countdownList"></div>
+      <div id="countdownEmpty" class="empty-state">
+        <span class="empty-icon">📅</span>
+        <p>No celebrations added yet. Add your first one!</p>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section id="chat" class="page">
+      <div class="page-header">
+        <h2>💬 Our Chat</h2>
+        <p>Share your feelings, thoughts, and love.</p>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-area">
+          <input type="text" id="chatInput" placeholder="Type your feelings here..." maxlength="300">
+          <button class="btn-primary" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+      <div id="chatEmpty" class="empty-state">
+        <span class="empty-icon">💌</span>
+        <p>Say something sweet to start the conversation.</p>
+      </div>
+    </section>
+
+    <!-- GAMES HUB -->
+    <section id="games" class="page">
+      <div class="page-header">
+        <h2>🎮 Play Together</h2>
+        <p>Games to pass the time and laugh across the distance.</p>
+      </div>
+      <div class="games-grid">
+        <!-- Tic Tac Toe -->
+        <div class="game-card card">
+          <h3>Tic-Tac-Toe ❌⭕</h3>
+          <p>Take turns playing against each other.</p>
+          <div class="game-status" id="tttStatus">Your turn, <span id="tttTurn">X</span></div>
+          <div class="ttt-board" id="tttBoard"></div>
+          <button class="btn-outline" onclick="resetTicTacToe()">Restart Game</button>
+          <div class="game-score">
+            <span>❌ <span id="scoreX">0</span></span> — <span>⭕ <span id="scoreO">0</span></span>
+          </div>
+        </div>
+
+        <!-- Love Calculator -->
+        <div class="game-card card">
+          <h3>💘 Love Calculator</h3>
+          <p>Find out your love percentage.</p>
+          <div class="calc-row">
+            <input type="text" id="lcName1" placeholder="Your name" maxlength="20">
+            <input type="text" id="lcName2" placeholder="Partner's name" maxlength="20">
+          </div>
+          <button class="btn-primary" onclick="calcLove()">Calculate ❤️</button>
+          <div class="calc-result" id="lcResult"></div>
+        </div>
+
+        <!-- Question of the Day -->
+        <div class="game-card card">
+          <h3>❓ Question of the Day</h3>
+          <p id="qotdText">Loading today's question...</p>
+          <div class="qotd-answer">
+            <input type="text" id="qotdInput" placeholder="Your answer..." maxlength="100">
+            <button class="btn-outline" onclick="saveQotdAnswer()">Save Answer</button>
+          </div>
+          <div id="qotdSaved" class="qotd-saved"></div>
+        </div>
+
+        <!-- Couple Trivia -->
+        <div class="game-card card">
+          <h3>💕 Couple Trivia</h3>
+          <p>How well do you know each other?</p>
+          <div id="triviaContainer"></div>
+          <button class="btn-primary" onclick="loadTrivia()">New Question</button>
+          <div id="triviaResult" class="trivia-result"></div>
+        </div>
+
+        <!-- Love Dice -->
+        <div class="game-card card">
+          <h3>🎲 Love Dice</h3>
+          <p>Roll for a romantic action to do together.</p>
+          <div class="dice-display" id="diceDisplay">❓ ❓</div>
+          <button class="btn-primary" onclick="rollDice()">Roll Dice 🎲</button>
+          <div id="diceMeaning" class="dice-meaning"></div>
+        </div>
+
+        <!-- Rock Paper Scissors -->
+        <div class="game-card card">
+          <h3>✂️ Rock Paper Scissors</h3>
+          <p>Classic game to settle who's right.</p>
+          <div class="rps-status" id="rpsStatus">Pick your move!</div>
+          <div class="rps-board">
+            <button class="rps-btn" onclick="playRPS('rock')">🪨 Rock</button>
+            <button class="rps-btn" onclick="playRPS('paper')">📄 Paper</button>
+            <button class="rps-btn" onclick="playRPS('scissors')">✂️ Scissors</button>
+          </div>
+          <div class="rps-result" id="rpsResult"></div>
+          <div class="rps-score" id="rpsScore">You: 0 | Love: 0</div>
+          <button class="btn-outline" onclick="resetRPS()">Reset Score</button>
+        </div>
+
+        <!-- Memory Match -->
+        <div class="game-card card">
+          <h3>🧠 Memory Match</h3>
+          <p>Find matching pairs of love symbols.</p>
+          <div class="memory-board" id="memoryBoard"></div>
+          <button class="btn-outline" onclick="resetMemory()">New Game</button>
+          <div class="memory-stats" id="memoryStats">Moves: 0 | Pairs: 0</div>
+        </div>
+      </div>
+      <div class="page-footer">
+        <button class="btn-outline" onclick="showSection('home')">← Back to Home</button>
+      </div>
+    </section>
+
+    <!-- OUR SONG -->
+    <section id="music" class="page">
+      <div class="page-header">
+        <h2>🎵 Our Song</h2>
+        <p>A song that reminds you of each other.</p>
+      </div>
+      <div class="music-card card">
+        <div class="music-info">
+          <h3 id="musicTitle">No song yet</h3>
+          <div id="musicArtist">Set your song below</div>
+        </div>
+        <div class="music-controls">
+          <audio id="musicAudio" preload="metadata"></audio>
+          <button class="btn-outline" onclick="toggleMusic()">▶ Play / ⏸ Pause</button>
+        </div>
+        <div class="music-set">
+          <input type="text" id="musicTitleInput" placeholder="Song title">
+          <input type="text" id="musicArtistInput" placeholder="Artist">
+          <input type="text" id="musicUrlInput" placeholder="Audio URL (mp3)">
+          <button class="btn-primary" onclick="saveOurSong()">Save Song</button>
+        </div>
+      </div>
+      <div class="page-footer">
+        <button class="btn-outline" onclick="showSection('more')">← Back to More</button>
+      </div>
+    </section>
+
+    <!-- WEATHER -->
+    <section id="weather" class="page">
+      <div class="page-header">
+        <h2>🌤️ Our Weather</h2>
+        <p>See what the sky looks like where each of you is.</p>
+      </div>
+      <div class="weather-vs">
+        <div class="weather-side me-side">
+          <h3 id="weatherMeName">You</h3>
+          <div class="weather-inputs">
+            <input type="text" id="weatherMeCity" placeholder="Your city">
+            <select id="weatherMeEmoji">
+              <option>☀️ Sunny</option>
+              <option>☁️ Cloudy</option>
+              <option>🌧️ Rainy</option>
+              <option>❄️ Snowy</option>
+              <option>⛈️ Stormy</option>
+              <option>🌈 Rainbow</option>
+              <option>🌙 Clear Night</option>
+            </select>
+            <input type="text" id="weatherMeTemp" placeholder="°C / °F" maxlength="6">
+          </div>
+          <div class="weather-display" id="weatherMeDisplay">
+            <span class="weather-emoji">☀️</span>
+            <span class="weather-city">—</span>
+            <span class="weather-temp">—</span>
+          </div>
+        </div>
+        <div class="weather-middle">
+          <span class="weather-arrow">↔</span>
+        </div>
+        <div class="weather-side partner-side">
+          <h3 id="weatherPartnerName">Love</h3>
+          <div class="weather-inputs">
+            <input type="text" id="weatherPartnerCity" placeholder="Partner's city">
+            <select id="weatherPartnerEmoji">
+              <option>☀️ Sunny</option>
+              <option>☁️ Cloudy</option>
+              <option>🌧️ Rainy</option>
+              <option>❄️ Snowy</option>
+              <option>⛈️ Stormy</option>
+              <option>🌈 Rainbow</option>
+              <option>🌙 Clear Night</option>
+            </select>
+            <input type="text" id="weatherPartnerTemp" placeholder="°C / °F" maxlength="6">
+          </div>
+          <div class="weather-display" id="weatherPartnerDisplay">
+            <span class="weather-emoji">☀️</span>
+            <span class="weather-city">—</span>
+            <span class="weather-temp">—</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-outline" onclick="saveWeather()">Save Weather</button>
+      <div class="page-footer">
+        <button class="btn-outline" onclick="showSection('more')">← Back to More</button>
+      </div>
+    </section>
+
+    <!-- LOVE NOTES -->
+    <section id="notes" class="page">
+      <div class="page-header">
+        <h2>✉️ Love Notes</h2>
+        <p>Little notes to remind each other how much you mean.</p>
+      </div>
+      <div class="notes-form card">
+        <div class="form-row">
+          <input type="text" id="noteAuthor" placeholder="Your name">
+          <textarea id="noteText" rows="2" placeholder="Write something sweet..."></textarea>
+          <button class="btn-primary" onclick="addLoveNote()">Send Note</button>
+        </div>
+      </div>
+      <div class="notes-list" id="notesList"></div>
+      <div id="notesEmpty" class="empty-state">
+        <span class="empty-icon">✉️</span>
+        <p>No notes yet. Send your first love note!</p>
+      </div>
+      <div class="page-footer">
+        <button class="btn-outline" onclick="showSection('more')">← Back to More</button>
+      </div>
+    </section>
+
+    <!-- MORE (music, weather, notes) -->
+    <section id="more" class="page">
+      <div class="page-header">
+        <h2>✨ More</h2>
+        <p>Extra ways to stay close across the distance.</p>
+      </div>
+      <div class="more-grid">
+        <div class="more-card card" onclick="showSection('music')">
+          <span class="more-icon">🎵</span>
+          <h3>Our Song</h3>
+          <p>A song that reminds you of each other</p>
+        </div>
+        <div class="more-card card" onclick="showSection('weather')">
+          <span class="more-icon">🌤️</span>
+          <h3>Our Weather</h3>
+          <p>See the sky where each of you is</p>
+        </div>
+        <div class="more-card card" onclick="showSection('notes')">
+          <span class="more-icon">✉️</span>
+          <h3>Love Notes</h3>
+          <p>Little notes to remind each other how much you mean</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav class="bottom-nav">
+    <a href="#" onclick="showSection('home'); return false;" class="tab active" data-section="home">
+      <span class="tab-icon">🏠</span><span class="tab-label">Home</span>
+    </a>
+    <a href="#" onclick="showSection('chat'); return false;" class="tab" data-section="chat">
+      <span class="tab-icon">💬</span><span class="tab-label">Chat</span>
+    </a>
+    <a href="#" onclick="showSection('gallery'); return false;" class="tab" data-section="gallery">
+      <span class="tab-icon">📸</span><span class="tab-label">Gallery</span>
+    </a>
+    <a href="#" onclick="showSection('stats'); return false;" class="tab" data-section="stats">
+      <span class="tab-icon">📊</span><span class="tab-label">Stats</span>
+    </a>
+    <a href="#" onclick="showSection('games'); return false;" class="tab" data-section="games">
+      <span class="tab-icon">🎮</span><span class="tab-label">Games</span>
+    </a>
+  </nav>
+
+</div>
+
+<!-- Install prompt (PWA) -->
+<div id="installPrompt" class="install-prompt">
+  <span>📲 Install "Us" app?</span>
+  <button class="btn-primary" onclick="installApp()">Add to Home Screen</button>
+  <button class="btn-outline" onclick="document.getElementById('installPrompt').style.display='none'">Maybe later</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('SW registered', reg))
+      .catch(err => console.log('SW failed', err));
+  }
+
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => {
+      const promptEl = document.getElementById('installPrompt');
+      if (promptEl) promptEl.style.display = 'flex';
+    }, 2000);
+  });
+
+  window.installApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('Install outcome:', outcome);
+      deferredPrompt = null;
+      document.getElementById('installPrompt').style.display = 'none';
+    }
+  };
+</script>
+</body>
+</html>

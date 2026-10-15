@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Us 🌞 — Day Mode Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: linear-gradient(135deg, #0f0c29 0%, #302b63 45%, #24243e 100%);
+    --surface: rgba(15, 10, 25, 0.7);
+    --surface-hover: rgba(25, 18, 40, 0.85);
+    --accent: #ec4899;
+    --accent-dark: #be185d;
+    --accent-glow: rgba(236, 72, 153, 0.35);
+    --accent-light: #fbcfe8;
+    --text: #f3e8ff;
+    --text-muted: #c3b1e1;
+    --border: rgba(236, 72, 153, 0.25);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --radius: 18px;
+    --transition: 0.35s ease;
+    --bottom-nav-height: 72px;
+    --top-header-height: 56px;
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+  a { text-decoration: none; color: inherit; }
+  button { cursor: pointer; font-family: inherit; border: none; background: none; }
+
+  /* App shell */
+  .app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+  .app-header {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(var(--safe-area-inset-top) + 0.75rem) 1rem 0.75rem;
+    background: rgba(15, 10, 25, 0.65);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .header-left { display: flex; align-items: center; gap: 0.5rem; }
+  .header-center { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--accent-light); font-size: 1.15rem; letter-spacing: 0.5px; text-shadow: 0 0 12px var(--accent-glow); }
+  .header-right { display: flex; align-items: center; gap: 0.5rem; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .icon-btn:hover { background: var(--accent-dark); color: var(--text); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 16px var(--accent-glow); }
+
+  .app-main { flex: 1; width: 100%; padding: 0 1rem 1rem; overflow-y: auto; }
+  .page { display: none; animation: fadeIn 0.35s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .page-header { margin-bottom: 1.5rem; text-align: center; }
+  .page-header h2 { font-size: 1.75rem; color: var(--accent-light); margin-bottom: 0.4rem; text-shadow: 0 0 14px var(--accent-glow); }
+  .page-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* Floating hearts (day mode - lighter) */
+  .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart { position: absolute; color: rgba(236, 72, 153, 0.15); font-size: 1.2rem; animation: float linear infinite; will-change: transform, opacity; }
+  @keyframes float { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-12vh) rotate(30deg); opacity: 0; }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    color: var(--text); padding: 0.75rem 1.35rem; border-radius: 12px;
+    font-weight: 600; font-size: 0.9rem;
+    box-shadow: 0 4px 16px var(--accent-glow); transition: var(--transition);
+    border: 1px solid var(--accent);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); filter: brightness(1.15); }
+  .btn-outline {
+    background: var(--surface); color: var(--accent-light);
+    padding: 0.75rem 1.35rem; border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+    border: 1.5px solid var(--accent); transition: var(--transition);
+  }
+  .btn-outline:hover { background: var(--accent-dark); color: var(--text); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
+  .btn-think {
+    background: linear-gradient(135deg, #be185d 0%, #ec4899 100%);
+    color: var(--text); padding: 0.75rem 1.35rem; border-radius: 12px;
+    font-weight: 700; font-size: 0.9rem;
+    box-shadow: 0 4px 16px rgba(190, 24, 93, 0.45); transition: var(--transition);
+    border: 1px solid var(--accent);
+  }
+  .btn-think:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
+
+  /* Hero */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;
+    padding: 1.5rem 1rem; border-radius: 22px;
+    background: var(--surface); border: 1px solid var(--border);
+    box-shadow: var(--shadow); margin-bottom: 2rem; backdrop-filter: blur(8px);
+  }
+  .hero-content h1 { font-size: 2rem; color: var(--accent-light); margin-bottom: 0.75rem; line-height: 1.2; text-shadow: 0 0 14px var(--accent-glow); }
+  .hero-content h1 span { color: var(--accent); }
+  .hero-sub { font-size: 1rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+  .relationship-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(190, 24, 93, 0.15); color: var(--accent-light);
+    padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+    margin-bottom: 1rem; border: 1px solid rgba(236, 72, 153, 0.3);
+  }
+  .badge-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px var(--accent); }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
+  .home-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .home-streak {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(190, 24, 93, 0.15); color: var(--accent-light);
+    padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700;
+    border: 1px solid rgba(236, 72, 153, 0.3); font-size: 0.95rem;
+  }
+  .hero-visual .couple-placeholder {
+    font-size: 7rem; text-align: center;
+    filter: drop-shadow(0 16px 32px rgba(190, 24, 93, 0.35));
+    animation: bounce 3s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--surface); padding: 1rem; border-radius: 14px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: 'Playfair Display', serif; text-shadow: 0 0 10px var(--accent-glow); }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .home-quick { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .quick-card { background: var(--surface); padding: 1.25rem; border-radius: 14px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); transition: var(--transition); cursor: pointer; }
+  .quick-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+  .quick-icon { font-size: 1.75rem; display: block; margin-bottom: 0.5rem; }
+  .quick-card h3 { margin-bottom: 0.35rem; color: var(--accent-light); font-size: 1rem; }
+  .quick-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+  .card { background: var(--surface); padding: 1.25rem; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); backdrop-filter: blur(4px); }
+  .form-row { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+  input, textarea { font-family: inherit; padding: 0.7rem 0.9rem; border-radius: 10px; border: 1.5px solid var(--border); background: rgba(0,0,0,0.3); font-size: 0.95rem; color: var(--text); width: 100%; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+  /* Chat */
+  .chat-container { display: flex; flex-direction: column; height: 360px; background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); backdrop-filter: blur(4px); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .msg { max-width: 80%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; position: relative; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.me { align-self: flex-end; background: linear-gradient(135deg, var(--accent-dark), var(--accent)); color: var(--text); border-bottom-right-radius: 2px; box-shadow: 0 0 12px var(--accent-glow); }
+  .msg.them { align-self: flex-start; background: rgba(255,255,255,0.08); color: var(--text); border-bottom-left-radius: 2px; border: 1px solid var(--border); }
+  .msg .meta { font-size: 0.68rem; opacity: 0.65; margin-top: 3px; display: block; }
+  .chat-input-area { display: flex; padding: 0.75rem 1rem; border-top: 1px solid var(--border); gap: 0.5rem; background: rgba(0,0,0,0.25); }
+  .chat-input-area input { flex: 1; border-radius: 10px; }
+
+  /* Games */
+  .games-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  .game-card { text-align: center; padding: 1.5rem; }
+  .ttt-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 260px; margin: 0.75rem auto; }
+  .ttt-cell { aspect-ratio: 1; border-radius: 10px; background: rgba(255,255,255,0.05); border: 2px solid var(--border); font-size: 1.4rem; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+  .ttt-cell:hover { background: var(--surface-hover); border-color: var(--accent); }
+  .ttt-cell.x { color: var(--accent); text-shadow: 0 0 8px var(--accent-glow); }
+  .ttt-cell.o { color: #a855f7; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4); }
+  .game-status { margin: 0.6rem 0; font-weight: 600; color: var(--text); font-size: 0.95rem; }
+  .calc-row { display: flex; gap: 0.6rem; justify-content: center; margin-bottom: 0.75rem; }
+  .calc-result { margin-top: 0.75rem; font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--accent-light); font-weight: 700; min-height: 1.75rem; text-shadow: 0 0 10px var(--accent-glow); }
+  .dice-display { font-size: 3rem; margin: 0.75rem 0; height: 3.2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-shadow: 0 0 20px var(--accent-glow); }
+  .dice-meaning { margin-top: 0.5rem; font-weight: 600; color: var(--accent-light); min-height: 1.25rem; font-style: italic; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-height);
+    display: flex; align-items: center; justify-content: space-around;
+    background: rgba(15, 10, 25, 0.8); backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.5); z-index: 80;
+    padding-bottom: calc(var(--safe-area-inset-bottom) + 0.5rem);
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); padding: 0.5rem 0.5rem; border-radius: 10px; transition: var(--transition); min-width: 60px; }
+  .tab .tab-icon { font-size: 1.4rem; filter: drop-shadow(0 0 8px rgba(0,0,0,0.5)); }
+  .tab.active { color: var(--accent-light); background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.3); box-shadow: 0 0 14px var(--accent-glow); }
+
+  .day-badge {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    background: rgba(255, 215, 0, 0.15); color: #fbbf24;
+    padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="day-badge">☀️ DAY MODE (6 AM – 6 PM)</div>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="app-shell">
+  <header class="app-header">
+    <div class="header-left">
+      <button class="icon-btn" aria-label="Day mode">☀️❤️</button>
+    </div>
+    <div class="header-center">Home</div>
+    <div class="header-right">
+      <button class="icon-btn" aria-label="Names">✏️</button>
+    </div>
+  </header>
+
+  <main id="app" class="app-main">
+    <section id="home" class="page active">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="relationship-badge">
+            <span class="badge-dot"></span>
+            <span id="daysTogether">42</span> nights together
+          </div>
+          <h1 id="homeTitle">Missing you, <span id="homePartnerName">Love</span> ☀️</h1>
+          <p class="hero-sub">A little space just for us — no matter the miles between us.</p>
+          <div class="home-actions">
+            <button class="btn-think">💭 Thinking of You</button>
+            <button class="btn-primary">Send a message</button>
+            <button class="btn-outline">See our photos</button>
+          </div>
+          <div class="home-streak">
+            🔥 Streak: <span id="homeStreak">7</span> nights in a row
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="couple-placeholder">☀️</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statPhotos">12</div>
+          <div class="stat-label">Photos shared</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMessages">84</div>
+          <div class="stat-label">Messages sent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statNotes">6</div>
+          <div class="stat-label">Love notes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCountdowns">3</div>
+          <div class="stat-label">Upcoming celebrations</div>
+        </div>
+      </div>
+
+      <div class="home-quick">
+        <div class="quick-card" onclick="alert('Countdown section')">
+          <span class="quick-icon">📅</span>
+          <h3>Next Celebration</h3>
+          <p id="nextEvent">in 14 nights — Anniversary</p>
+        </div>
+        <div class="quick-card" onclick="alert('Games section')">
+          <span class="quick-icon">🎮</span>
+          <h3>Play Together</h3>
+          <p>Tic-tac-toe, trivia, dice & more</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="#" class="tab active" data-section="home">
+      <span class="tab-icon">🏠</span><span class="tab-label">Home</span>
+    </a>
+    <a href="#" class="tab" data-section="chat">
+      <span class="tab-icon">💬</span><span class="tab-label">Chat</span>
+    </a>
+    <a href="#" class="tab" data-section="gallery">
+      <span class="tab-icon">📸</span><span class="tab-label">Gallery</span>
+    </a>
+    <a href="#" class="tab" data-section="stats">
+      <span class="tab-icon">📊</span><span class="tab-label">Stats</span>
+    </a>
+    <a href="#" class="tab" data-section="games">
+      <span class="tab-icon">🎮</span><span class="tab-label">Games</span>
+    </a>
+  </nav>
+</div>
+
+<script>
+  // Floating hearts for preview
+  const container = document.getElementById('heartsBg');
+  const hearts = ['💖', '💗', '💕', '💘', '💞', '💟'];
+  for (let i = 0; i < 14; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.top = Math.random() * 100 + 'vh';
+    h.style.fontSize = (0.8 + Math.random() * 1.6) + 'rem';
+    h.style.animationDuration = (3 + Math.random() * 4) + 's';
+    h.style.animationDelay = (Math.random() * 5) + 's';
+    container.appendChild(h);
+  }
+</script>
+</body>
+</html>
