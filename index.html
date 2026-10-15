@@ -445,6 +445,18 @@
           <p>Little notes to remind each other how much you mean</p>
         </div>
       </div>
+
+      <!-- Backup / Sync -->
+      <div class="backup-card card">
+        <h3>💾 Backup & Sync</h3>
+        <p>Share your data between two phones</p>
+        <div class="backup-actions">
+          <button class="btn-primary" onclick="exportData()">📤 Export Data</button>
+          <button class="btn-outline" onclick="document.getElementById('importFile').click()">📥 Import Data</button>
+          <input type="file" id="importFile" accept=".json" hidden>
+        </div>
+        <p class="backup-hint">Export on one phone, send the file to your partner, then Import on their phone.</p>
+      </div>
     </section>
 
   </main>

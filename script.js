@@ -1028,6 +1028,73 @@ window.saveWeather = function () {
 
 window.renderWeatherSide = renderWeatherSide;
 
+// ── Export / Import ──
+window.exportData = function () {
+  const data = {};
+  const keysToSave = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('lusso_')) {
+      keysToSave.push(key);
+    }
+  }
+  keysToSave.forEach((key) => {
+    data[key] = localStorage.getItem(key);
+  });
+  data.names_state = JSON.stringify(state);
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lusso-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+window.importData = function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!confirm('Import will replace all current data on this phone. Continue?')) return;
+
+      // Clear existing lusso data
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('lusso_')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      // Import new data
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === 'names_state') {
+          state = typeof value === 'string' ? JSON.parse(value) : value;
+          localStorage.setItem(STORAGE_KEYS.names, JSON.stringify(state));
+        } else {
+          localStorage.setItem(key, value);
+        }
+      });
+
+      renderAll();
+      alert('✅ Data imported successfully!');
+    } catch (err) {
+      alert('❌ Invalid file. Please select a valid export file.');
+    }
+  };
+  reader.readAsText(file);
+};
+
+// Wire up the hidden file input
+document.getElementById('importFile').addEventListener('change', importData);
+
 // ── persistence ──
 function saveState() {
   localStorage.setItem(STORAGE_KEYS.names, JSON.stringify(state));
