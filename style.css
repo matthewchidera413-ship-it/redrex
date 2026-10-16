@@ -9,7 +9,6 @@
   --accent-light: #fbcfe8;
   --text: #f3e8ff;
   --text-muted: #c3b1e1;
-  --text-dim: #8b5cf6;
   --border: rgba(236, 72, 153, 0.25);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   --radius: 18px;
@@ -112,26 +111,55 @@ button {
 
 .page-footer { margin-top: 1.5rem; text-align: center; }
 
-/* ── Floating hearts background ── */
-.hearts-bg {
+/* ── Love Bubbles Overlay ── */
+.love-bubbles {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1000;
   overflow: hidden;
 }
-.heart {
+
+.love-bubble {
   position: absolute;
-  color: rgba(236, 72, 153, 0.15);
-  font-size: 1.2rem;
-  animation: float linear infinite;
-  will-change: transform, opacity;
+  font-size: 2rem;
+  pointer-events: none;
+  z-index: 1000;
+  animation: loveFloat 2.5s ease-out forwards;
 }
-@keyframes float {
-  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+
+@keyframes loveFloat {
+  0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 1; }
-  100% { transform: translateY(-12vh) rotate(30deg); opacity: 0; }
+  100% { transform: translateY(-150px) translateX(var(--tx)) rotate(360deg); opacity: 0; }
+}
+
+/* ── Celebration Toast ── */
+.celebration-toast {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  color: var(--text);
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 10px 30px rgba(190, 24, 93, 0.5);
+  z-index: 2000;
+  border: 2px solid #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: center;
+}
+
+.celebration-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 0 0 40px var(--accent-glow);
 }
 
 /* ── Buttons ── */
@@ -369,6 +397,19 @@ select option { background: #1a102e; color: var(--text); }
 .countdown-timer { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--accent); font-size: 0.95rem; white-space: nowrap; text-shadow: 0 0 8px var(--accent-glow); }
 
 /* ── Chat ── */
+.chat-streak {
+  text-align: center;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--accent-light);
+  background: rgba(190, 24, 93, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  display: inline-block;
+}
+
 .chat-container {
   display: flex; flex-direction: column; height: 360px;
   background: var(--surface); border-radius: 16px; border: 1px solid var(--border);
@@ -391,7 +432,7 @@ select option { background: #1a102e; color: var(--text); }
 .chat-input-area input { flex: 1; border-radius: 10px; }
 
 /* ── Games ── */
-.games-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
 .game-card { text-align: center; padding: 1.5rem; }
 
 .ttt-board {
@@ -694,6 +735,132 @@ select option { background: #1a102e; color: var(--text); }
   color: var(--accent-dark);
 }
 
+/* ── More section ── */
+.more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.more-card {
+  background: var(--surface);
+  padding: 1.25rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(4px);
+}
+.more-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+.more-icon { font-size: 1.75rem; }
+.more-card h3 { margin-bottom: 0.25rem; color: var(--accent-light); font-size: 1rem; }
+.more-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ── Backup Card ── */
+.backup-card {
+  text-align: center;
+  grid-column: 1 / -1;
+}
+.backup-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.backup-actions button {
+  flex: 1;
+  min-width: 140px;
+}
+.backup-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+/* ── Love Run Game ── */
+.love-run-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.run-track {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+.runner {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  transition: left 0.3s ease;
+  z-index: 2;
+}
+.finish-line {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  z-index: 1;
+}
+.run-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.run-result { margin-top: 0.5rem; font-weight: 700; color: var(--accent-light); min-height: 1.25rem; text-shadow: 0 0 10px var(--accent-glow); }
+
+/* ── Heart Popper ── */
+.heart-popper-board {
+  position: relative;
+  height: 160px;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.popper-heart {
+  position: absolute;
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s;
+}
+.popper-heart:active { transform: scale(1.3); }
+.popper-controls { margin-bottom: 0.5rem; }
+.popper-score { font-weight: 700; color: var(--accent-light); font-size: 1.1rem; text-shadow: 0 0 8px var(--accent-glow); }
+
+/* ── Cupid's Arrow ── */
+.cupid-game {
+  position: relative;
+  height: 140px;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+.cupid-target {
+  position: absolute;
+  font-size: 2.5rem;
+  top: 50%;
+  left: 80%;
+  transform: translate(-50%, -50%);
+  transition: left 0.3s, top 0.3s;
+}
+.cupid-arrow {
+  position: absolute;
+  left: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  transition: left 0.6s ease-out;
+}
+.cupid-controls { margin-bottom: 0.5rem; }
+.cupid-result { margin-top: 0.5rem; font-weight: 700; color: var(--accent-light); min-height: 1.25rem; text-shadow: 0 0 10px var(--accent-glow); }
+
 /* ── Daily Quote ── */
 .quote-card {
   background: linear-gradient(135deg, rgba(190, 24, 93, 0.12), rgba(168, 85, 247, 0.12));
@@ -741,28 +908,6 @@ select option { background: #1a102e; color: var(--text); }
   position: relative;
 }
 
-/* ── More section ── */
-.more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.more-card {
-  background: var(--surface);
-  padding: 1.25rem;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(4px);
-}
-.more-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
-.more-icon { font-size: 1.75rem; }
-.more-card h3 { margin-bottom: 0.25rem; color: var(--accent-light); font-size: 1rem; }
-.more-card p { font-size: 0.85rem; color: var(--text-muted); }
-
 /* ── Bottom navigation ── */
 .bottom-nav {
   position: fixed;
@@ -803,28 +948,6 @@ select option { background: #1a102e; color: var(--text); }
   box-shadow: 0 0 14px var(--accent-glow);
 }
 
-/* ── Backup Card ── */
-.backup-card {
-  text-align: center;
-  grid-column: 1 / -1;
-}
-.backup-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-}
-.backup-actions button {
-  flex: 1;
-  min-width: 140px;
-}
-.backup-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 0.5rem;
-}
-
 /* ── Install prompt ── */
 .install-prompt {
   position: fixed;
@@ -860,8 +983,9 @@ select option { background: #1a102e; color: var(--text); }
   .more-grid { grid-template-columns: 1fr; }
   .meter-bar-container { width: 150px; }
   .chat-container { height: 320px; }
-  .memory-board { gap: 0.4rem; max-width: 240px; }
-  .trivia-options { grid-template-columns: 1fr; }
+  .games-grid { grid-template-columns: 1fr; }
+  .run-track { height: 50px; }
+  .cupid-target { font-size: 2rem; }
 }
 
 @media (max-width: 360px) {

@@ -96,6 +96,29 @@ const SECTION_TITLES = {
   more: 'More',
 };
 
+// ── Love bubbles from an element ──
+function spawnLoveBubbles(element, count = 8) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + rect.height / 2;
+  const hearts = ['💕', '💖', '💗', '💘', '💞', '💟'];
+  const container = document.getElementById('loveBubbles');
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement('div');
+    b.className = 'love-bubble';
+    b.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    b.style.left = startX + 'px';
+    b.style.top = startY + 'px';
+    const tx = (Math.random() - 0.5) * 120;
+    b.style.setProperty('--tx', tx + 'px');
+    b.style.animationDelay = (i * 0.08) + 's';
+    container.appendChild(b);
+    setTimeout(() => b.remove(), 2600);
+  }
+}
+
 // ── day / night icon ──
 function updateDayNightIcon() {
   const hour = new Date().getHours();
@@ -107,6 +130,11 @@ function updateDayNightIcon() {
   if (headerBtn) {
     headerBtn.textContent = isNight ? '🌙❤️' : '☀️❤️';
     headerBtn.setAttribute('aria-label', isNight ? 'Night mode' : 'Day mode');
+    headerBtn.onclick = (e) => {
+      e.preventDefault();
+      spawnLoveBubbles(headerBtn, 10);
+      showSection('home');
+    };
   }
   if (heroVisual) {
     heroVisual.textContent = isNight ? '🌙' : '☀️';
@@ -505,6 +533,8 @@ window.sendMessage = function () {
   renderLoveMeter();
   addLovePoints('me', 2);
   touchStreak();
+  const sendBtn = document.querySelector('.chat-input-area .btn-primary');
+  spawnLoveBubbles(sendBtn, 6);
 };
 
 window.sendThinkingOfYou = function () {
@@ -519,6 +549,8 @@ window.sendThinkingOfYou = function () {
   addLovePoints('me', 5);
   touchStreak();
   showSection('chat');
+  const sendBtn = document.querySelector('.chat-input-area .btn-primary');
+  spawnLoveBubbles(sendBtn, 10);
 };
 
 document.getElementById('chatInput').addEventListener('keypress', (e) => {

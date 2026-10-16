@@ -18,8 +18,11 @@
 </head>
 <body>
 
-<!-- Floating hearts background -->
-<div class="hearts-bg" id="heartsBg"></div>
+<!-- Love bubbles overlay -->
+<div class="love-bubbles" id="loveBubbles"></div>
+
+<!-- Celebration toast -->
+<div class="celebration-toast" id="celebrationToast"></div>
 
 <!-- App shell -->
 <div class="app-shell">
@@ -46,7 +49,7 @@
             <span class="badge-dot"></span>
             <span id="daysTogether">0</span> nights together
           </div>
-          <h1 id="homeTitle">Missing you, <span id="homePartnerName">love</span> 🌙</h1>
+          <h1 id="homeTitle">Missing you, <span id="homePartnerName">love</span> ☀️</h1>
           <p class="hero-sub">A little space just for us — no matter the miles between us.</p>
           <div class="home-actions">
             <button class="btn-think" onclick="sendThinkingOfYou()">💭 Thinking of You</button>
@@ -58,7 +61,7 @@
           </div>
         </div>
         <div class="hero-visual">
-          <div class="couple-placeholder">🌙</div>
+          <div class="couple-placeholder">💕</div>
         </div>
       </div>
 
@@ -90,7 +93,7 @@
         <div class="quick-card" onclick="showSection('games')">
           <span class="quick-icon">🎮</span>
           <h3>Play Together</h3>
-          <p>Tic-tac-toe, trivia, dice & more</p>
+          <p>10 games to play across the distance</p>
         </div>
       </div>
 
@@ -205,11 +208,14 @@
       </div>
     </section>
 
-    <!-- CHAT -->
+    <!-- CHAT (streak above chat) -->
     <section id="chat" class="page">
       <div class="page-header">
         <h2>💬 Our Chat</h2>
         <p>Share your feelings, thoughts, and love.</p>
+      </div>
+      <div class="chat-streak">
+        🔥 Streak: <span id="chatStreak">0</span> nights in a row
       </div>
       <div class="chat-container">
         <div class="chat-messages" id="chatMessages"></div>
@@ -224,14 +230,14 @@
       </div>
     </section>
 
-    <!-- GAMES HUB -->
+    <!-- GAMES HUB (10 games) -->
     <section id="games" class="page">
       <div class="page-header">
         <h2>🎮 Play Together</h2>
-        <p>Games to pass the time and laugh across the distance.</p>
+        <p>10 games to pass the time and laugh across the distance.</p>
       </div>
       <div class="games-grid">
-        <!-- Tic Tac Toe -->
+        <!-- 1 Tic Tac Toe -->
         <div class="game-card card">
           <h3>Tic-Tac-Toe ❌⭕</h3>
           <p>Take turns playing against each other.</p>
@@ -243,7 +249,7 @@
           </div>
         </div>
 
-        <!-- Love Calculator -->
+        <!-- 2 Love Calculator -->
         <div class="game-card card">
           <h3>💘 Love Calculator</h3>
           <p>Find out your love percentage.</p>
@@ -255,7 +261,7 @@
           <div class="calc-result" id="lcResult"></div>
         </div>
 
-        <!-- Question of the Day -->
+        <!-- 3 Question of the Day -->
         <div class="game-card card">
           <h3>❓ Question of the Day</h3>
           <p id="qotdText">Loading today's question...</p>
@@ -266,7 +272,7 @@
           <div id="qotdSaved" class="qotd-saved"></div>
         </div>
 
-        <!-- Couple Trivia -->
+        <!-- 4 Couple Trivia -->
         <div class="game-card card">
           <h3>💕 Couple Trivia</h3>
           <p>How well do you know each other?</p>
@@ -275,7 +281,7 @@
           <div id="triviaResult" class="trivia-result"></div>
         </div>
 
-        <!-- Love Dice -->
+        <!-- 5 Love Dice -->
         <div class="game-card card">
           <h3>🎲 Love Dice</h3>
           <p>Roll for a romantic action to do together.</p>
@@ -284,7 +290,7 @@
           <div id="diceMeaning" class="dice-meaning"></div>
         </div>
 
-        <!-- Rock Paper Scissors -->
+        <!-- 6 Rock Paper Scissors -->
         <div class="game-card card">
           <h3>✂️ Rock Paper Scissors</h3>
           <p>Classic game to settle who's right.</p>
@@ -299,13 +305,57 @@
           <button class="btn-outline" onclick="resetRPS()">Reset Score</button>
         </div>
 
-        <!-- Memory Match -->
+        <!-- 7 Memory Match -->
         <div class="game-card card">
           <h3>🧠 Memory Match</h3>
           <p>Find matching pairs of love symbols.</p>
           <div class="memory-board" id="memoryBoard"></div>
           <button class="btn-outline" onclick="resetMemory()">New Game</button>
           <div class="memory-stats" id="memoryStats">Moves: 0 | Pairs: 0</div>
+        </div>
+
+        <!-- 8 Love Run -->
+        <div class="game-card card">
+          <h3>🏃‍♂️❤️‍🏃‍♀️ Love Run</h3>
+          <p>Race to the finish and share a hug!</p>
+          <div class="love-run-container">
+            <div class="run-track">
+              <div class="runner me-runner" id="runnerMe">👨</div>
+              <div class="runner partner-runner" id="runnerPartner">👩</div>
+              <div class="finish-line">🏁</div>
+            </div>
+            <div class="run-controls">
+              <button class="btn-primary" onclick="runMe()">You Run 👨</button>
+              <button class="btn-outline" onclick="runPartner()">Partner Run 👩</button>
+              <button class="btn-outline" onclick="resetLoveRun()">Reset</button>
+            </div>
+            <div class="run-result" id="runResult"></div>
+          </div>
+        </div>
+
+        <!-- 9 Heart Popper -->
+        <div class="game-card card">
+          <h3>💓 Heart Popper</h3>
+          <p>Pop hearts before they float away!</p>
+          <div class="heart-popper-board" id="heartPopperBoard"></div>
+          <div class="popper-controls">
+            <button class="btn-primary" onclick="startHeartPopper()">Start Game</button>
+          </div>
+          <div class="popper-score" id="popperScore">Score: 0</div>
+        </div>
+
+        <!-- 10 Cupid's Arrow -->
+        <div class="game-card card">
+          <h3>🏹 Cupid's Arrow</h3>
+          <p>Aim and shoot the heart!</p>
+          <div class="cupid-game" id="cupidGame">
+            <div class="cupid-target" id="cupidTarget">🎯</div>
+            <div class="cupid-arrow" id="cupidArrow">🏹</div>
+          </div>
+          <div class="cupid-controls">
+            <button class="btn-primary" onclick="shootCupidArrow()">Shoot Arrow ❤️</button>
+          </div>
+          <div class="cupid-result" id="cupidResult"></div>
         </div>
       </div>
       <div class="page-footer">
@@ -422,7 +472,7 @@
       </div>
     </section>
 
-    <!-- MORE (music, weather, notes) -->
+    <!-- MORE -->
     <section id="more" class="page">
       <div class="page-header">
         <h2>✨ More</h2>
@@ -489,6 +539,7 @@
   <button class="btn-outline" onclick="document.getElementById('installPrompt').style.display='none'">Maybe later</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
