@@ -1,4 +1,4 @@
-/* ── Us 🌙 — Long Distance Love Site (Supabase Synced + Bubbles) ── */
+/* ── Us 🌙 — Long Distance Love Site (Supabase Synced + Bubbles + Reminders) ── */
 
 const STORAGE_KEYS = {
   names: 'lusso_names',
@@ -14,6 +14,8 @@ const STORAGE_KEYS = {
   weatherMe: 'lusso_weather_me',
   weatherPartner: 'lusso_weather_partner',
   qotdAnswers: 'lusso_qotd_answers',
+  notifications: 'lusso_notifications',
+  lastStreakReminder: 'lusso_last_streak_reminder',
 };
 
 const SUPABASE_URL = 'https://uymtyekjqyfscijqvprm.supabase.co';
@@ -114,7 +116,7 @@ function spawnLoveBubbles(element, count = 8) {
     b.style.setProperty('--tx', tx + 'px');
     b.style.animationDelay = (i * 0.08) + 's';
     container.appendChild(b);
-    setTimeout(() => b.remove(), 2600);
+    setTimeout(() => { if (b.parentNode) b.parentNode.removeChild(b); }, 2600);
   }
 }
 
@@ -125,6 +127,59 @@ function showCelebrationToast(message) {
   toast.textContent = message;
   toast.classList.add('show');
   setTimeout(() => { toast.classList.remove('show'); }, 4000);
+}
+
+// ── Streak reminder toast ──
+function showStreakReminder() {
+  const reminder = document.getElementById('streakReminder');
+  const text = document.getElementById('streakReminderText');
+  if (!reminder || !text) return;
+  const streak = parseInt(localGet(STORAGE_KEYS.streak) || '0', 10) || 0;
+  text.textContent = streak > 0 ? `🔥 Your streak is ${streak} nights! Keep it going ❤️` : `🔥 Start your streak today! Send a message to ${state.partner} 💕`;
+  reminder.style.display = 'block';
+}
+
+// ── Notification permission ──
+let notificationsEnabled = false;
+
+async function enableNotifications() {
+  if (!('Notification' in window)) {
+    alert('Notifications not supported in this browser.');
+    return;
+  }
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    notificationsEnabled = true;
+    localSet(STORAGE_KEYS.notifications, 'true');
+    document.getElementById('notifPrompt').style.display = 'none';
+    showCelebrationToast('✅ Streak reminders enabled!');
+  } else {
+    alert('Notifications blocked. You can still see streak reminders inside the app.');
+    document.getElementById('notifPrompt').style.display = 'none';
+  }
+}
+
+function checkNotificationPrompt() {
+  const prompt = document.getElementById('notifPrompt');
+  const enabled = localGet(STORAGE_KEYS.notifications);
+  if (!prompt || enabled === 'true') return;
+  // Show prompt after 2 seconds on home page
+  setTimeout(() => {
+    if (document.getElementById('home').classList.contains('active')) {
+      prompt.style.display = 'flex';
+    }
+  }, 2000);
+}
+
+function sendStreakNotification() {
+  if (!notificationsEnabled) return;
+  const streak = parseInt(localGet(STORAGE_KEYS.streak) || '0', 10) || 0;
+  if (streak === 0) return;
+  const title = streak === 1 ? '🔥 1-night streak!' : `🔥 ${streak}-night streak!`;
+  const body = `Don't break it! Send a message to ${state.partner} today ❤️`;
+  try {
+    new Notification(title, { body, icon: 'icon-192.svg', badge: 'icon-192.svg' });
+  } catch (e) {}
 }
 
 // ── localStorage helpers ──
@@ -198,14 +253,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   } else {
-    // Fallback: read names from localStorage if Supabase is empty
     const savedNames = localGet(STORAGE_KEYS.names);
     if (savedNames) {
       try { state = JSON.parse(savedNames); } catch {}
     }
   }
 
-  // Real-time listener: when the other phone saves, update this phone
+  // Real-time listener
   try {
     supabaseClient
       .channel('app-changes')
@@ -241,6 +295,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderRPS();
   renderMemory();
 
+  // Streak reminder when opening app
+  checkStreakReminder();
+  checkNotificationPrompt();
+
   // ── Wire up header icon click (bubbles + home) ──
   const headerIcon = document.getElementById('headerIcon');
   if (headerIcon) {
@@ -272,6 +330,8 @@ function showSection(id) {
   const titleEl = document.getElementById('headerTitle');
   if (titleEl) titleEl.textContent = SECTION_TITLES[id] || id;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  checkStreakReminder();
+  checkNotificationPrompt();
 }
 
 // ── names ──
@@ -313,6 +373,16 @@ function touchStreak() {
   updateStreak();
   renderAll();
   saveAllToSupabase();
+  checkStreakReminder();
+}
+
+// ── Check streak reminder once per day ──
+function checkStreakReminder() {
+  const today = new Date().toDateString();
+  const lastReminder = localGet(STORAGE_KEYS.lastStreakReminder);
+  if (lastReminder === today) return;
+  localSet(STORAGE_KEYS.lastStreakReminder, today);
+  showStreakReminder();
 }
 
 // ── monthly love points ──
@@ -465,7 +535,6 @@ function loadDailyQuote() {
     dailyQuoteIndex = dayIndex % DAILY_QUOTES.length;
     renderDailyQuote();
   } catch (e) {
-    // Fallback romantic quote
     const textEl = document.getElementById('dailyQuote');
     const authorEl = document.getElementById('dailyQuoteAuthor');
     if (textEl) textEl.textContent = "Distance means so little when someone means so much.";

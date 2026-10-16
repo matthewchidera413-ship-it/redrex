@@ -21,8 +21,21 @@
 <!-- Love bubbles overlay -->
 <div class="love-bubbles" id="loveBubbles"></div>
 
+<!-- Notification permission prompt -->
+<div id="notifPrompt" class="notif-prompt">
+  <span>🔔 Enable streak reminders?</span>
+  <button class="btn-primary" onclick="enableNotifications()">Turn On</button>
+  <button class="btn-outline" onclick="document.getElementById('notifPrompt').style.display='none'">Maybe Later</button>
+</div>
+
 <!-- Celebration toast -->
 <div class="celebration-toast" id="celebrationToast"></div>
+
+<!-- Daily streak reminder toast -->
+<div id="streakReminder" class="streak-reminder">
+  <span id="streakReminderText"></span>
+  <button class="btn-outline" onclick="document.getElementById('streakReminder').style.display='none'">Close</button>
+</div>
 
 <!-- App shell -->
 <div class="app-shell">
@@ -208,7 +221,7 @@
       </div>
     </section>
 
-    <!-- CHAT (streak above chat) -->
+    <!-- CHAT -->
     <section id="chat" class="page">
       <div class="page-header">
         <h2>💬 Our Chat</h2>
