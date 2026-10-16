@@ -22,6 +22,24 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabaseClient = null;
 let state = { me: 'You', partner: 'Love' };
 
+const DAILY_QUOTES = [
+  { q: "Distance means so little when someone means so much.", a: "— Us" },
+  { q: "I carry your heart with me, wherever I go.", a: "— E.E. Cummings" },
+  { q: "Love knows no distance; it hath no continent; its eyes are for the stars.", a: "— Gilbert Parker" },
+  { q: "Missing you is my heart's way of reminding me that I love you.", a: "— Us" },
+  { q: "Every mile between us is worth it when I get to see you.", a: "— Us" },
+  { q: "Love is missing someone whenever you're apart, but feeling warm inside because you're close in heart.", a: "— Kay Knudsen" },
+  { q: "True love doesn't mean being inseparable; it means being separated and nothing changes.", a: "— Us" },
+  { q: "The scariest thing about distance is that you don't know if they'll miss you or forget you.", a: "— Nicholas Sparks" },
+  { q: "I fall in love with you a little more every day, even from afar.", a: "— Us" },
+  { q: "Absence sharpens love, presence strengthens it.", a: "— Thomas Fuller" },
+  { q: "I miss you in waves and tonight I'm drowning.", a: "— Us" },
+  { q: "Love is the bridge between you and everything.", a: "— Rumi" },
+  { q: "No matter the distance, you're always in my thoughts and in my heart.", a: "— Us" },
+  { q: "Being far apart doesn't mean loving any less; it means loving more deeply.", a: "— Us" },
+  { q: "A thousand miles means nothing when we're connected at the heart.", a: "— Us" },
+];
+
 const QOTD_QUESTIONS = [
   "What's your favorite memory of us so far?",
   "If I could visit you tomorrow, what's the first thing we'd do?",
@@ -100,29 +118,16 @@ function spawnLoveBubbles(element, count = 8) {
   }
 }
 
-// ── Supabase storage layer ──
-async function supabaseGet() {
-  if (!supabaseClient) return {};
-  const { data, error } = await supabaseClient
-    .from('app_data')
-    .select('data')
-    .eq('id', 1)
-    .single();
-  if (error || !data) return {};
-  return data.data || {};
+// ── Celebration toast ──
+function showCelebrationToast(message) {
+  const toast = document.getElementById('celebrationToast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); }, 4000);
 }
 
-async function supabaseSet(updates) {
-  if (!supabaseClient) return;
-  const current = await supabaseGet();
-  const next = { ...current, ...updates };
-  await supabaseClient.from('app_data').upsert({
-    id: 1,
-    data: next,
-    updated_at: new Date().toISOString(),
-  });
-}
-
+// ── localStorage helpers ──
 function localGet(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
 }
@@ -133,9 +138,53 @@ function localRemove(key) {
   localStorage.removeItem(key);
 }
 
+// ── Supabase helpers ──
+async function supabaseGet() {
+  if (!supabaseClient) return {};
+  try {
+    const { data, error } = await supabaseClient
+      .from('app_data')
+      .select('data')
+      .eq('id', 1)
+      .single();
+    if (error || !data) return {};
+    return data.data || {};
+  } catch (e) { return {}; }
+}
+
+async function supabaseSet(updates) {
+  if (!supabaseClient) return;
+  try {
+    const current = await supabaseGet();
+    const next = { ...current, ...updates };
+    await supabaseClient.from('app_data').upsert({
+      id: 1,
+      data: next,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (e) {}
+}
+
+async function saveAllToSupabase() {
+  if (!supabaseClient) return;
+  const payload = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('lusso_')) {
+      payload[key] = localGet(key);
+    }
+  }
+  payload.names_state = JSON.stringify(state);
+  await supabaseSet(payload);
+}
+
 // ── init ──
 document.addEventListener('DOMContentLoaded', async () => {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  try {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (e) {
+    console.log('Supabase init failed, using local only');
+  }
 
   // Load from Supabase into localStorage
   const remote = await supabaseGet();
@@ -148,26 +197,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         localSet(key, typeof val === 'string' ? val : JSON.stringify(val));
       }
     }
+  } else {
+    // Fallback: read names from localStorage if Supabase is empty
+    const savedNames = localGet(STORAGE_KEYS.names);
+    if (savedNames) {
+      try { state = JSON.parse(savedNames); } catch {}
+    }
   }
 
   // Real-time listener: when the other phone saves, update this phone
-  supabaseClient
-    .channel('app-changes')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_data' }, async () => {
-      const remote2 = await supabaseGet();
-      if (remote2 && Object.keys(remote2).length > 0) {
-        for (const [key, val] of Object.entries(remote2)) {
-          if (key === 'names_state') {
-            try { state = JSON.parse(val); } catch {}
-            localSet(STORAGE_KEYS.names, val);
-          } else {
-            localSet(key, typeof val === 'string' ? val : JSON.stringify(val));
+  try {
+    supabaseClient
+      .channel('app-changes')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_data' }, async () => {
+        const remote2 = await supabaseGet();
+        if (remote2 && Object.keys(remote2).length > 0) {
+          for (const [key, val] of Object.entries(remote2)) {
+            if (key === 'names_state') {
+              try { state = JSON.parse(val); } catch {}
+              localSet(STORAGE_KEYS.names, val);
+            } else {
+              localSet(key, typeof val === 'string' ? val : JSON.stringify(val));
+            }
           }
+          renderAll();
         }
-        renderAll();
-      }
-    })
-    .subscribe();
+      })
+      .subscribe();
+  } catch (e) {}
 
   updateDayNightIcon();
   updateStreak();
@@ -197,9 +254,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Wire up chat send button (bubbles on send) ──
   const chatSendBtn = document.getElementById('chatSendBtn');
   if (chatSendBtn) {
-    const originalClick = chatSendBtn.onclick;
     chatSendBtn.onclick = (e) => {
-      if (typeof originalClick === 'function') originalClick.call(this, e);
+      sendMessage();
       spawnLoveBubbles(chatSendBtn, 6);
     };
   }
@@ -388,7 +444,6 @@ function renderLoveMeter() {
     else if (ml.partner > ml.me) winnerEl.textContent = `🏆 ${state.partner} loves more this month!`;
     else winnerEl.textContent = `🤝 It's a tie this month — you're perfectly matched!`;
     winnerEl.style.color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ec4899';
-    // Month-end celebration bubbles
     const heartBtn = document.getElementById('headerIcon');
     if (heartBtn) spawnLoveBubbles(heartBtn, 15);
     showCelebrationToast(`🏆 Month Winner: ${ml.me > ml.partner ? state.me : ml.partner > ml.me ? state.partner : 'Tie!'}`);
@@ -400,14 +455,47 @@ function renderLoveMeter() {
   }
 }
 
-// ── Celebration toast ──
-function showCelebrationToast(message) {
-  const toast = document.getElementById('celebrationToast');
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => { toast.classList.remove('show'); }, 4000);
+// ── Daily Love Quote ──
+let dailyQuoteIndex = 0;
+
+function loadDailyQuote() {
+  try {
+    const now = new Date();
+    const dayIndex = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    dailyQuoteIndex = dayIndex % DAILY_QUOTES.length;
+    renderDailyQuote();
+  } catch (e) {
+    // Fallback romantic quote
+    const textEl = document.getElementById('dailyQuote');
+    const authorEl = document.getElementById('dailyQuoteAuthor');
+    if (textEl) textEl.textContent = "Distance means so little when someone means so much.";
+    if (authorEl) authorEl.textContent = "— Us";
+  }
 }
+
+function renderDailyQuote() {
+  try {
+    const quote = DAILY_QUOTES[dailyQuoteIndex % DAILY_QUOTES.length];
+    const textEl = document.getElementById('dailyQuote');
+    const authorEl = document.getElementById('dailyQuoteAuthor');
+    if (textEl) textEl.textContent = quote.q;
+    if (authorEl) authorEl.textContent = quote.a;
+  } catch (e) {
+    const textEl = document.getElementById('dailyQuote');
+    const authorEl = document.getElementById('dailyQuoteAuthor');
+    if (textEl) textEl.textContent = "Distance means so little when someone means so much.";
+    if (authorEl) authorEl.textContent = "— Us";
+  }
+}
+
+window.newDailyQuote = function () {
+  try {
+    dailyQuoteIndex = Math.floor(Math.random() * DAILY_QUOTES.length);
+    renderDailyQuote();
+    touchStreak();
+    saveAllToSupabase();
+  } catch (e) {}
+};
 
 // ── Gallery ──
 function renderGallery() {
@@ -709,7 +797,6 @@ window.handleTttMove = async function (i) {
     ttt.winner = player === 'X' ? '❌' : '⭕';
     if (player === 'X') ttt.scoreX++; else ttt.scoreO++;
     addLovePoints(player === 'X' ? 'me' : 'partner', 5);
-    // Winner bubbles
     const headerIcon = document.getElementById('headerIcon');
     if (headerIcon) spawnLoveBubbles(headerIcon, 12);
     showCelebrationToast(`🎉 ${ttt.winner} wins!`);
@@ -769,20 +856,22 @@ window.calcLove = function () {
 
 // ── Question of the Day ──
 function loadQotd() {
-  const now = new Date();
-  const dayIndex = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-  const q = QOTD_QUESTIONS[dayIndex % QOTD_QUESTIONS.length];
-  document.getElementById('qotdText').textContent = q;
+  try {
+    const now = new Date();
+    const dayIndex = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    const q = QOTD_QUESTIONS[dayIndex % QOTD_QUESTIONS.length];
+    document.getElementById('qotdText').textContent = q;
 
-  const answers = localGet(STORAGE_KEYS.qotdAnswers) || {};
-  const key = now.toDateString();
-  if (answers[key]) {
-    document.getElementById('qotdSaved').textContent = 'Your answer: ' + escapeHtml(answers[key]);
-    document.getElementById('qotdInput').value = answers[key];
-  } else {
-    document.getElementById('qotdSaved').textContent = '';
-    document.getElementById('qotdInput').value = '';
-  }
+    const answers = localGet(STORAGE_KEYS.qotdAnswers) || {};
+    const key = now.toDateString();
+    if (answers[key]) {
+      document.getElementById('qotdSaved').textContent = 'Your answer: ' + escapeHtml(answers[key]);
+      document.getElementById('qotdInput').value = answers[key];
+    } else {
+      document.getElementById('qotdSaved').textContent = '';
+      document.getElementById('qotdInput').value = '';
+    }
+  } catch (e) {}
 }
 
 window.saveQotdAnswer = async function () {
@@ -798,49 +887,6 @@ window.saveQotdAnswer = async function () {
   answers[key] = text;
   localSet(STORAGE_KEYS.qotdAnswers, answers);
   document.getElementById('qotdSaved').textContent = 'Your answer saved!';
-  touchStreak();
-  saveAllToSupabase();
-};
-
-// ── Daily Love Quote ──
-const DAILY_QUOTES = [
-  { q: "Distance means so little when someone means so much.", a: "— Us" },
-  { q: "I carry your heart with me, wherever I go.", a: "— E.E. Cummings" },
-  { q: "Love knows no distance; it hath no continent; its eyes are for the stars.", a: "— Gilbert Parker" },
-  { q: "Missing you is my heart's way of reminding me that I love you.", a: "— Us" },
-  { q: "Every mile between us is worth it when I get to see you.", a: "— Us" },
-  { q: "Love is missing someone whenever you're apart, but feeling warm inside because you're close in heart.", a: "— Kay Knudsen" },
-  { q: "True love doesn't mean being inseparable; it means being separated and nothing changes.", a: "— Us" },
-  { q: "The scariest thing about distance is that you don't know if they'll miss you or forget you.", a: "— Nicholas Sparks" },
-  { q: "I fall in love with you a little more every day, even from afar.", a: "— Us" },
-  { q: "Absence sharpens love, presence strengthens it.", a: "— Thomas Fuller" },
-  { q: "I miss you in waves and tonight I'm drowning.", a: "— Us" },
-  { q: "Love is the bridge between you and everything.", a: "— Rumi" },
-  { q: "No matter the distance, you're always in my thoughts and in my heart.", a: "— Us" },
-  { q: "Being far apart doesn't mean loving any less; it means loving more deeply.", a: "— Us" },
-  { q: "A thousand miles means nothing when we're connected at the heart.", a: "— Us" },
-];
-
-let dailyQuoteIndex = 0;
-
-function loadDailyQuote() {
-  const now = new Date();
-  const dayIndex = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-  dailyQuoteIndex = dayIndex % DAILY_QUOTES.length;
-  renderDailyQuote();
-}
-
-function renderDailyQuote() {
-  const quote = DAILY_QUOTES[dailyQuoteIndex];
-  const textEl = document.getElementById('dailyQuote');
-  const authorEl = document.getElementById('dailyQuoteAuthor');
-  if (textEl) textEl.textContent = quote.q;
-  if (authorEl) authorEl.textContent = quote.a;
-}
-
-window.newDailyQuote = function () {
-  dailyQuoteIndex = Math.floor(Math.random() * DAILY_QUOTES.length);
-  renderDailyQuote();
   touchStreak();
   saveAllToSupabase();
 };
@@ -1415,7 +1461,6 @@ window.shootCupidArrow = function () {
       result.style.color = '#f87171';
     }
 
-    // Move target to new random spot
     cupid.targetX = 20 + Math.random() * 60;
     cupid.targetY = 20 + Math.random() * 60;
     renderCupid();
@@ -1423,16 +1468,3 @@ window.shootCupidArrow = function () {
 
   saveAllToSupabase();
 };
-
-// ── persistence ──
-async function saveAllToSupabase() {
-  const payload = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('lusso_')) {
-      payload[key] = localGet(key);
-    }
-  }
-  payload.names_state = JSON.stringify(state);
-  await supabaseSet(payload);
-}
