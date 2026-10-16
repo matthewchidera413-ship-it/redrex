@@ -30,7 +30,7 @@
   <!-- Top header -->
   <header class="app-header">
     <div class="header-left">
-      <button class="icon-btn" onclick="showSection('home')" aria-label="Home">🌙</button>
+      <button id="headerIcon" class="icon-btn" aria-label="Home">🌙</button>
     </div>
     <div class="header-center" id="headerTitle">Home</div>
     <div class="header-right">
@@ -221,7 +221,7 @@
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area">
           <input type="text" id="chatInput" placeholder="Type your feelings here..." maxlength="300">
-          <button class="btn-primary" onclick="sendMessage()">Send</button>
+          <button id="chatSendBtn" class="btn-primary" onclick="sendMessage()">Send</button>
         </div>
       </div>
       <div id="chatEmpty" class="empty-state">
